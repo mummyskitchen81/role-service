@@ -55,4 +55,9 @@ public class RoleController {
     public ResponseEntity<ApiResponseDto<String>> deletePermissionToRole(@RequestBody AddOrDeletePermissionRequestDto requestDto){
         return roleService.deletePermissionToRole(requestDto);
     }
+
+    @GetMapping("/health-check")
+    public ResponseEntity<ApiResponseDto<String>> healthCheck(){
+        return roleService.healthCheck();
+    }
 }

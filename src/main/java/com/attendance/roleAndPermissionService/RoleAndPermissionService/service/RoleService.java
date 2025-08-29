@@ -204,4 +204,8 @@ public class RoleService {
                 deleteRequest.getRole()
         ), null,LocalDateTime.now() ));
     }
+
+    public ResponseEntity<ApiResponseDto<String>> healthCheck() {
+        return ResponseEntity.ok(new ApiResponseDto<>(true,MessageEnum.HEALTHY.getMeessage(), MessageEnum.HEALTHY.getMeessage(), LocalDateTime.now()));
+    }
 }
