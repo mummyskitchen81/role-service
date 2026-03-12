@@ -4,6 +4,7 @@ import com.attendance.roleAndPermissionService.RoleAndPermissionService.dto.*;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
+    @PreAuthorize("hasAuthority('CREATE_ROLE')")
     @PostMapping("/create")
     public ResponseEntity<ApiResponseDto<String>> createRole(@RequestBody RoleCreateRequestDto requestDto){
         return roleService.createRoleWithPermission(requestDto);
@@ -25,11 +27,13 @@ public class RoleController {
         return roleService.getAllRole();
     }
 
+    @PreAuthorize("hasAuthority('DELETE_ROLE')")
     @PostMapping("/delete")
     public ResponseEntity<ApiResponseDto<String>> deleteRole(@RequestBody DeleteRoleRequestDto requestDto){
         return roleService.deleteRole(requestDto);
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_ROLE')")
     @PutMapping("/update-role")
     public ResponseEntity<ApiResponseDto<String>> updateRole(@RequestBody UpdateRoleRequestDto requestDto){
         return roleService.updateRole(requestDto);
@@ -46,11 +50,13 @@ public class RoleController {
         return roleService.getRoleById(id);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_ROLE')")
     @PostMapping("/add-permission-to-role")
     public ResponseEntity<ApiResponseDto<List<String>>> addPermissionToRole(@RequestBody AddOrDeletePermissionRequestDto requestDto){
         return roleService.addPermissionToRole(requestDto);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_ROLE')")
     @PostMapping("/delete-permission-to-role")
     public ResponseEntity<ApiResponseDto<String>> deletePermissionToRole(@RequestBody AddOrDeletePermissionRequestDto requestDto){
         return roleService.deletePermissionToRole(requestDto);

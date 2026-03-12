@@ -7,6 +7,7 @@ import com.attendance.roleAndPermissionService.RoleAndPermissionService.dto.Perm
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.service.RolePermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class RoleAndPermissionController {
         return rolePermissionService.deletePermissionFromRole(deleteRequest);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_ROLE')")
     @GetMapping("/{role}/permission")
     public ResponseEntity<ApiResponseDto<List<PermissionDto>>> getAllPermissionForRole(@PathVariable String role){
         return rolePermissionService.getAllPermissionForRole(role);

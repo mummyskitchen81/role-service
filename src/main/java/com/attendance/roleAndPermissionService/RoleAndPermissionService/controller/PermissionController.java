@@ -3,6 +3,7 @@ package com.attendance.roleAndPermissionService.RoleAndPermissionService.control
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ public class PermissionController {
     @Autowired
     private PermissionService permissionService;
 
+    @PreAuthorize("hasAuthority('MANAGE_ROLE')")
     @GetMapping("/getAllPermission")
     public ResponseEntity<?> getAllPermission(){
         return permissionService.getAllPermission();
