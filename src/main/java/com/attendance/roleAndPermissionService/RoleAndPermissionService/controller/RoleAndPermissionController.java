@@ -28,7 +28,6 @@ public class RoleAndPermissionController {
         return rolePermissionService.deletePermissionFromRole(deleteRequest);
     }
 
-    @PreAuthorize("hasAuthority('MANAGE_ROLE')")
     @GetMapping("/{role}/permission")
     public ResponseEntity<ApiResponseDto<List<PermissionDto>>> getAllPermissionForRole(@PathVariable String role){
         return rolePermissionService.getAllPermissionForRole(role);
