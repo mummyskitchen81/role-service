@@ -4,67 +4,117 @@ import com.attendance.roleAndPermissionService.RoleAndPermissionService.entity.P
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.entity.Role;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.entity.RolePermission;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.enums.DefaultRoleEnum;
+import com.attendance.roleAndPermissionService.RoleAndPermissionService.enums.PermissionEnum;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.enums.E_Code;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.exception.RoleNotFoundException;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.repo.PermissionRepo;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.repo.RolePermissionRepo;
 import com.attendance.roleAndPermissionService.RoleAndPermissionService.repo.RoleRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@Order(3)
 @Component
+@Order(3)
+@AllArgsConstructor
 public class DefaultRolePermissionSeeder implements CommandLineRunner {
 
-    @Autowired
-    private PermissionRepo permissionRepo;
-
-    @Autowired
-    private RoleRepo roleRepo;
-
-    @Autowired
-    private RolePermissionRepo rolePermissionRepo;
+    private final PermissionRepo permissionRepo;
+    private final RoleRepo roleRepo;
+    private final RolePermissionRepo rolePermissionRepo;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
-        Role roleAdmin = roleRepo.findByRole(DefaultRoleEnum.ADMIN.name())
-                .orElseThrow(() -> new RoleNotFoundException(E_Code.CONFIG_404.getMessage()));
-
-        // Get existing permissions already mapped to this role
-        List<RolePermission> existingRolePermissions = rolePermissionRepo.findByRole(roleAdmin);
-        List<Long> existingPermissionIds = existingRolePermissions.stream()
-                .map(rp -> rp.getPermission().getId())
-                .toList();
-
-        // Find all permissions
         List<Permission> allPermissions = permissionRepo.findAll();
 
-        List<RolePermission> newMappings = new ArrayList<>();
+        Map<String, Permission> permissionMap = allPermissions.stream()
+                .collect(Collectors.toMap(Permission::getPermission, p -> p));
 
-        for (Permission permission : allPermissions) {
-            if (!existingPermissionIds.contains(permission.getId())) {
-                RolePermission rolePermission = RolePermission.builder()
-                        .role(roleAdmin)
-                        .permission(permission)
-                        .createdAt(LocalDateTime.now())
-                        .build();
+        /* ================= ROLE PERMISSION MATRIX ================= */
 
-                newMappings.add(rolePermission);
+        Map<DefaultRoleEnum, List<String>> rolePermissionMatrix = new EnumMap<>(DefaultRoleEnum.class);
+
+        // ADMIN
+        rolePermissionMatrix.put(DefaultRoleEnum.ADMIN, List.of(
+                PermissionEnum.MANAGE_USER.name(),
+                PermissionEnum.MANAGE_TIMETABLE.name(),
+                PermissionEnum.MANAGE_ROLE.name(),
+                PermissionEnum.MANAGE_CURRICULAM.name(),
+                PermissionEnum.REPORT_GENERATE.name(),
+                PermissionEnum.VIEW_ATTENDANCE.name(),
+                PermissionEnum.VIEW_TIMETABLE.name(),
+                PermissionEnum.VIEW_ANALYTICS.name()
+        ));
+
+        // TEACHER
+        rolePermissionMatrix.put(DefaultRoleEnum.TEACHER, List.of(
+                PermissionEnum.TAKE_ATTENDANCE.name(),
+                PermissionEnum.VIEW_ATTENDANCE.name(),
+                PermissionEnum.VIEW_TIMETABLE.name(),
+                PermissionEnum.REPORT_GENERATE.name(),
+                PermissionEnum.MANAGE_ATTENDANCE.name()
+        ));
+
+        // STUDENT
+        rolePermissionMatrix.put(DefaultRoleEnum.STUDENT, List.of(
+                PermissionEnum.VIEW_TIMETABLE.name(),
+                PermissionEnum.APPLY_MEDICAL_LEAVE.name()
+        ));
+
+        // HOD
+        rolePermissionMatrix.put(DefaultRoleEnum.HOD, List.of(
+                PermissionEnum.VIEW_ATTENDANCE.name(),
+                PermissionEnum.VIEW_ANALYTICS.name(),
+                PermissionEnum.MANAGE_MEDICAL_LEAVE.name(),
+                PermissionEnum.REPORT_GENERATE.name(),
+                PermissionEnum.VIEW_TIMETABLE.name()
+        ));
+
+        /* ================= SEEDING ================= */
+
+        for (Map.Entry<DefaultRoleEnum, List<String>> entry : rolePermissionMatrix.entrySet()) {
+
+            DefaultRoleEnum roleEnum = entry.getKey();
+
+            Role role = roleRepo.findByRole(roleEnum.name())
+                    .orElseThrow(() -> new RoleNotFoundException(E_Code.CONFIG_404.getMessage()));
+
+            Set<Long> existingPermissionIds = rolePermissionRepo.findByRole(role)
+                    .stream()
+                    .map(rp -> rp.getPermission().getId())
+                    .collect(Collectors.toSet());
+
+            List<RolePermission> newMappings = new ArrayList<>();
+
+            for (String permissionName : entry.getValue()) {
+
+                Permission permission = permissionMap.get(permissionName);
+
+                if (permission != null && !existingPermissionIds.contains(permission.getId())) {
+
+                    newMappings.add(
+                            RolePermission.builder()
+                                    .role(role)
+                                    .permission(permission)
+                                    .isDefault(true)
+                                    .createdAt(LocalDateTime.now())
+                                    .build()
+                    );
+                }
+            }
+
+            if (!newMappings.isEmpty()) {
+                rolePermissionRepo.saveAll(newMappings);
+                System.out.println("Permissions seeded for role: " + roleEnum.name());
             }
         }
 
-        if (!newMappings.isEmpty()) {
-            rolePermissionRepo.saveAll(newMappings);
-            System.out.println("New permissions added to ADMIN role");
-        } else {
-            System.out.println("ℹNo new permissions to add");
-        }
+        System.out.println("\n$$$$$$$$ ROLE-PERMISSION SEEDING COMPLETE $$$$$$$$$$$\n");
     }
 }

@@ -20,4 +20,6 @@ public interface RolePermissionRepo extends JpaRepository<RolePermission,Long> {
     List<RolePermission> findByRole(Role role);
 
     void deleteAllByRole(Role role);
+
+    List<RolePermission> findByRoleIn(List<Role> roles);
 }

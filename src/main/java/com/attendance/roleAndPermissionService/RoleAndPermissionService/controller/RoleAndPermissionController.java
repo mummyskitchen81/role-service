@@ -18,18 +18,19 @@ public class RoleAndPermissionController {
     @Autowired
     private RolePermissionService rolePermissionService;
 
-    @PostMapping("/assign")
-    public ResponseEntity<ApiResponseDto<String>> assignPermissionToRole(@RequestBody AssignPermissionToRoleRequestDto assignRequest){
-        return rolePermissionService.assignPermissionToRole(assignRequest);
-    }
+//    @PostMapping("/assign")
+//    public ResponseEntity<ApiResponseDto<String>> assignPermissionToRole(@RequestBody AssignPermissionToRoleRequestDto assignRequest){
+//        return rolePermissionService.assignPermissionToRole(assignRequest);
+//    }
 
-    @PostMapping("/delete")
-    public ResponseEntity<ApiResponseDto<String>> deletePermissionFromRole(@RequestBody DeletePermissionFromRoleRequestDto deleteRequest){
-        return rolePermissionService.deletePermissionFromRole(deleteRequest);
-    }
+//    @PostMapping("/delete")
+//    public ResponseEntity<ApiResponseDto<String>> deletePermissionFromRole(@RequestBody DeletePermissionFromRoleRequestDto deleteRequest){
+//        return rolePermissionService.deletePermissionFromRole(deleteRequest);
+//    }
 
     @GetMapping("/{role}/permission")
     public ResponseEntity<ApiResponseDto<List<PermissionDto>>> getAllPermissionForRole(@PathVariable String role){
         return rolePermissionService.getAllPermissionForRole(role);
     }
+
 }

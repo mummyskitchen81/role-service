@@ -44,11 +44,11 @@ public class JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractRoles(String token) {
+    public List<String> extractRoles(String token) {
 
         Claims claims = extractAllClaims(token);
 
-        return claims.get("role", String.class);
+        return claims.get("role", List.class);
     }
 
     public boolean isTokenValid(String token) {

@@ -1,16 +1,19 @@
 package com.attendance.roleAndPermissionService.RoleAndPermissionService.enums;
 
 public enum DefaultRoleEnum {
-    ADMIN("ADMIN");
 
-    private final String meessage;
+    ADMIN("Full system access"),
+    TEACHER("Teacher level restricted access"),
+    STUDENT("Student level restricted access"),
+    HOD("Head of Department access");
 
-    DefaultRoleEnum(String meessage){
+    private final String description;
 
-        this.meessage = meessage;
+    DefaultRoleEnum(String description) {
+        this.description = description;
     }
 
-    public String getMeessage(){
-        return meessage;
+    public String getDescription() {
+        return description;
     }
 }

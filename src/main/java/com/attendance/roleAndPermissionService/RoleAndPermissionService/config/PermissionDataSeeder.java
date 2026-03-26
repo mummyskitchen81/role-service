@@ -22,26 +22,40 @@ public class PermissionDataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<Permission> defaultPermission=List.of(
+        List<Permission> defaultPermission = List.of(
 
-                new Permission(null,PermissionEnum.CREATE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.EDIT.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.DELETE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.PROFILE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
+                // ================= MANAGEMENT =================
 
-                new Permission(null,PermissionEnum.CREATE_TIMETABLE.getMeessage(),MessageEnum.ACADEMIC_OPERATION.getMeessage()),
-                new Permission(null,PermissionEnum.EDIT_TIMETABLE.getMeessage(),MessageEnum.ACADEMIC_OPERATION.getMeessage()),
-                new Permission(null,PermissionEnum.DELETE_TIMETABLE.getMeessage(),MessageEnum.ACADEMIC_OPERATION.getMeessage()),
+                new Permission(null, PermissionEnum.MANAGE_USER.name(), PermissionEnum.MANAGE_USER.getMeessage()),
+                new Permission(null, PermissionEnum.MANAGE_ROLE.name(), PermissionEnum.MANAGE_ROLE.getMeessage()),
 
-                new Permission(null,PermissionEnum.ASSIGN_FACULTY.getMeessage(),MessageEnum.DEPARTMENTAL_MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.REPORT_GENERATE.getMeessage(),MessageEnum.DEPARTMENTAL_MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.MEDICAL_LEAVE.getMeessage(),MessageEnum.DEPARTMENTAL_MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.VIEW_ATTENDANCE.getMeessage(),MessageEnum.DEPARTMENTAL_MANAGEMENT.getMeessage()),
+                // ================= ACADEMIC OPERATION =================
 
-                new Permission(null,PermissionEnum.CREATE_ROLE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.DELETE_ROLE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.MANAGE_ROLE.getMeessage(),MessageEnum.MANAGEMENT.getMeessage()),
-                new Permission(null,PermissionEnum.REGISTER_HOD.getMeessage(),MessageEnum.MANAGEMENT.getMeessage())
+                new Permission(null, PermissionEnum.MANAGE_TIMETABLE.name(), PermissionEnum.MANAGE_TIMETABLE.getMeessage()),
+                new Permission(null, PermissionEnum.MANAGE_CURRICULAM.name(), PermissionEnum.MANAGE_CURRICULAM.getMeessage()),
+
+                // ================= ATTENDANCE =================
+
+                new Permission(null, PermissionEnum.MANAGE_ATTENDANCE.name(), PermissionEnum.MANAGE_ATTENDANCE.getMeessage()),
+                new Permission(null, PermissionEnum.TAKE_ATTENDANCE.name(), PermissionEnum.TAKE_ATTENDANCE.getMeessage()),
+                new Permission(null, PermissionEnum.VIEW_ATTENDANCE.name(), PermissionEnum.VIEW_ATTENDANCE.getMeessage()),
+
+                // ================= LEAVE =================
+
+                new Permission(null, PermissionEnum.APPLY_MEDICAL_LEAVE.name(), PermissionEnum.APPLY_MEDICAL_LEAVE.getMeessage()),
+                new Permission(null, PermissionEnum.MANAGE_MEDICAL_LEAVE.name(), PermissionEnum.MANAGE_MEDICAL_LEAVE.getMeessage()),
+
+                // ================= TIMETABLE =================
+
+                new Permission(null, PermissionEnum.VIEW_TIMETABLE.name(), PermissionEnum.VIEW_TIMETABLE.getMeessage()),
+
+                // ================= REPORT =================
+
+                new Permission(null, PermissionEnum.REPORT_GENERATE.name(), PermissionEnum.REPORT_GENERATE.getMeessage()),
+
+                // ================= ANALYTICS =================
+
+                new Permission(null, PermissionEnum.VIEW_ANALYTICS.name(), PermissionEnum.VIEW_ANALYTICS.getMeessage())
         );
 
         for(Permission permission: defaultPermission){
@@ -50,6 +64,6 @@ public class PermissionDataSeeder implements CommandLineRunner {
             }
         }
 
-        System.out.println("Permission seedin SUCCESSFU");
+        System.out.println("\n$$$$$$$$$$$$$$$$$$$$$$$$$$ PERMISSION SEEDING COMPLETE $$$$$$$$$$$$$$$$$$$\n");
     }
 }

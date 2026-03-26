@@ -20,15 +20,21 @@ public class DefaultRoleSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if(!roleRepo.existsByRole(DefaultRoleEnum.ADMIN.name())){
 
-            Role role=Role.builder()
-                            .role(DefaultRoleEnum.ADMIN.name())
-                                    .description(MessageEnum.ADMIN_FULL_PERMISSION.getMeessage())
-                                            .defaultRole(true)
-                                                    .createdAt(LocalDateTime.now())
-                                                            .build();
-            roleRepo.save(role);
+        for (DefaultRoleEnum roleEnum : DefaultRoleEnum.values()) {
+
+            if (!roleRepo.existsByRole(roleEnum.name())) {
+
+                Role role = Role.builder()
+                        .role(roleEnum.name())
+                        .description(roleEnum.getDescription())
+                        .defaultRole(true)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                roleRepo.save(role);
+            }
         }
+
     }
 }

@@ -36,51 +36,53 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // This stops
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        // GUARD: If InternalSecretFilter already authenticated this (e.g. a GET request), skip JWT logic
-        if (SecurityContextHolder.getContext().getAuthentication() != null &&
-                "GET".equalsIgnoreCase(request.getMethod())) {
+        // ✅ Skip if already authenticated
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String header = request.getHeader("Authorization");
 
-        System.out.println("@@@@@@@@@Hora ");
-
         if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        System.out.println("I am hre############");
-
         String token = header.substring(7);
 
         try {
-            // Any JWT parsing (isTokenValid, extractUsername) that fails will jump to catch
             if (!jwtService.isTokenValid(token)) {
-                filterChain.doFilter(request, response);
+                handleException(response, "Invalid JWT Token");
                 return;
             }
 
             String username = jwtService.extractUsername(token);
-            String role = jwtService.extractRoles(token);
 
-            System.out.println("#####     Role: " + role + "     #########");
+            // ✅ FIX: Extract roles as List
+            List<String> roles = jwtService.extractRoles(token);
 
-            // load permissions using roles
-            ResponseEntity<ApiResponseDto<List<PermissionDto>>> permissions = rolePermissionService.getAllPermissionForRole(role);
+            // ✅ Fetch permissions for ALL roles
+            List<PermissionDto> allPermissions = roles.stream()
+                    .flatMap(role -> {
+                        ResponseEntity<ApiResponseDto<List<PermissionDto>>> res =
+                                rolePermissionService.getAllPermissionForRole(role);
+                        return res.getBody().getData().stream();
+                    })
+                    .distinct()
+                    .toList();
 
-            List<GrantedAuthority> authorities =
-                    permissions.getBody().getData()
-                            .stream()
-                            .map(p -> new SimpleGrantedAuthority(p.getPermission()))
-                            .collect(Collectors.toList());
+            // ✅ Convert to authorities
+            List<GrantedAuthority> authorities = allPermissions.stream()
+                    .map(p -> new SimpleGrantedAuthority(p.getPermission()))
+                    .collect(Collectors.toList());
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -91,10 +93,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            handleException(response, "JWT Token has expired");
-            return;
         } catch (Exception e) {
+            e.printStackTrace();
             handleException(response, "Invalid JWT Token");
             return;
         }
@@ -103,11 +103,12 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private void handleException(HttpServletResponse response, String message) throws IOException {
+
         ApiResponseDto<Object> apiResponse = ApiResponseDto.builder()
                 .success(false)
                 .message(message)
                 .data(null)
-                .timeStamp(LocalDateTime.now()) // Now this will be "2026-03-11T14:32:03"
+                .timeStamp(LocalDateTime.now())
                 .build();
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

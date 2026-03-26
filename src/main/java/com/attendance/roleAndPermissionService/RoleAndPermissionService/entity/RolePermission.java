@@ -41,5 +41,8 @@ public class RolePermission {
     private Permission permission;
 
     @Column(nullable = false)
+    private Boolean isDefault;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 }
